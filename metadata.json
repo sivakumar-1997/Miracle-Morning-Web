@@ -1,0 +1,8 @@
+{
+  "name": "Morning Miracles",
+  "description": "Sacred daily spiritual rituals: Brahma Muhurtha wisdom, 7 Chakras Solfeggio sound therapy, Ho'oponopono sacred prayer, Masaru Emoto water alchemy, 28-day Magic gratitude, and Evening Magic subconscious reflection.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
