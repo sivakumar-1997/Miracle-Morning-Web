@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Sparkles, Clock, Compass, Brain, Sun, Volume2, ArrowRight, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Sparkles, Clock, Compass, Brain, Sun, Volume2, VolumeX, ArrowRight, CheckCircle2, Music } from 'lucide-react';
 import { calculateBrahmaMuhurtha } from '../../utils/brahmaMuhurtha';
 import { audioSynth } from '../../utils/audioSynthesizer';
 
@@ -15,6 +15,11 @@ export const Stage1BrahmaMuhurtha: React.FC<Stage1Props> = ({ onComplete }) => {
   const [pledgeAccepted, setPledgeAccepted] = useState<boolean>(false);
   const [breathPhase, setBreathPhase] = useState<'Inhale' | 'Hold' | 'Exhale' | 'Pause'>('Inhale');
   const [isBreathingActive, setIsBreathingActive] = useState<boolean>(false);
+  const [voiceGender, setVoiceGender] = useState<'female' | 'male'>('female');
+  const [isAudioAnnounce, setIsAudioAnnounce] = useState<boolean>(true);
+
+  const voiceGenderRef = useRef<'female' | 'male'>('female');
+  voiceGenderRef.current = voiceGender;
 
   // Update clock every 30 seconds
   useEffect(() => {
@@ -22,17 +27,68 @@ export const Stage1BrahmaMuhurtha: React.FC<Stage1Props> = ({ onComplete }) => {
     return () => clearInterval(timer);
   }, []);
 
-  // 4-4-4-4 Pranic breath pacer cycle
+  // 4-4-4-4 Pranic breath pacer cycle with vocal announcements and mild background
   useEffect(() => {
-    if (!isBreathingActive) return;
+    if (!isBreathingActive) {
+      audioSynth.stopPranayamaBackground();
+      audioSynth.stopSpeech();
+      return;
+    }
+
+    // Start mild BG soundscape (432Hz ambient drone)
+    audioSynth.playPranayamaBackground(0.08);
+
     const phases: Array<'Inhale' | 'Hold' | 'Exhale' | 'Pause'> = ['Inhale', 'Hold', 'Exhale', 'Pause'];
+    const pitches = [432, 528, 396, 432];
     let idx = 0;
+
+    // Immediately trigger phase 0 ("Inhale")
+    setBreathPhase('Inhale');
+    if (isAudioAnnounce) {
+      audioSynth.playSoftChime(pitches[0]);
+      audioSynth.speakText('Inhale', {
+        gender: voiceGenderRef.current,
+        rate: 0.85,
+        pitch: voiceGenderRef.current === 'female' ? 1.05 : 0.88,
+      });
+    }
+
     const interval = setInterval(() => {
       idx = (idx + 1) % phases.length;
-      setBreathPhase(phases[idx]);
+      const nextPhase = phases[idx];
+      setBreathPhase(nextPhase);
+
+      if (isAudioAnnounce) {
+        audioSynth.playSoftChime(pitches[idx]);
+        audioSynth.speakText(nextPhase, {
+          gender: voiceGenderRef.current,
+          rate: 0.85,
+          pitch: voiceGenderRef.current === 'female' ? 1.05 : 0.88,
+        });
+      }
     }, 4000);
-    return () => clearInterval(interval);
-  }, [isBreathingActive]);
+
+    return () => {
+      clearInterval(interval);
+      audioSynth.stopPranayamaBackground();
+      audioSynth.stopSpeech();
+    };
+  }, [isBreathingActive, isAudioAnnounce]);
+
+  const handleVoiceChange = (newGender: 'female' | 'male') => {
+    setVoiceGender(newGender);
+    voiceGenderRef.current = newGender;
+    if (isBreathingActive && isAudioAnnounce) {
+      audioSynth.stopSpeech();
+      setTimeout(() => {
+        audioSynth.speakText(breathPhase, {
+          gender: newGender,
+          rate: 0.85,
+          pitch: newGender === 'female' ? 1.05 : 0.88,
+        });
+      }, 100);
+    }
+  };
 
   const status = calculateBrahmaMuhurtha(currentTime, sunriseHour, sunriseMinute);
 
@@ -46,6 +102,7 @@ export const Stage1BrahmaMuhurtha: React.FC<Stage1Props> = ({ onComplete }) => {
     } else {
       setIsSpeaking(true);
       audioSynth.speakText(morningIntentionNote, {
+        gender: voiceGender,
         onEnd: () => setIsSpeaking(false),
       });
     }
@@ -212,47 +269,151 @@ export const Stage1BrahmaMuhurtha: React.FC<Stage1Props> = ({ onComplete }) => {
         </div>
       </div>
 
-      {/* Interactive Pranic Dawn Breath Pacer */}
-      <div className="bg-white rounded-3xl p-6 sm:p-7 border border-emerald-900/10 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
-        <div className="space-y-1 text-center sm:text-left">
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            Vedic Pranayama Pacer (4-4-4-4 Sama Vritti)
+      {/* Interactive Pranic Dawn Breath Pacer with Audio Announcement & Mild BG */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-emerald-900/10 shadow-sm space-y-6">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-stone-200 pb-5">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              Vedic Pranayama Pacer (4-4-4-4 Sama Vritti)
+            </div>
+            <h4 className="text-xl sm:text-2xl font-bold font-heading text-emerald-950">
+              Center Your Mind in Dawn Stillness
+            </h4>
+            <p className="text-xs sm:text-sm text-stone-600 max-w-xl leading-relaxed">
+              Box breathing harmonizes sympathetic and parasympathetic nervous systems.
+              Vocal guidance announces <em>Inhale, Hold, Exhale, Pause</em> in synchrony with a mild 432 Hz dawn acoustic soundscape.
+            </p>
           </div>
-          <h4 className="text-xl font-bold font-heading text-emerald-950">
-            Center Your Mind in Dawn Stillness
-          </h4>
-          <p className="text-xs sm:text-sm text-stone-600 max-w-md">
-            Harmonize sympathetic and parasympathetic nervous systems before commencing the chakras.
-          </p>
+
+          {/* Voice Gender & Audio Guidance Controls */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Female / Male Voice Selector */}
+            <div className="flex items-center gap-1 bg-emerald-50/80 p-1 rounded-2xl border border-emerald-200">
+              <button
+                type="button"
+                onClick={() => handleVoiceChange('female')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  voiceGender === 'female'
+                    ? 'bg-emerald-800 text-white shadow-xs'
+                    : 'text-stone-700 hover:text-emerald-900'
+                }`}
+                aria-label="Select Female Voice for Breath Announcements"
+              >
+                👩 Female Voice
+              </button>
+              <button
+                type="button"
+                onClick={() => handleVoiceChange('male')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  voiceGender === 'male'
+                    ? 'bg-emerald-800 text-white shadow-xs'
+                    : 'text-stone-700 hover:text-emerald-900'
+                }`}
+                aria-label="Select Male Voice for Breath Announcements"
+              >
+                👨 Male Voice
+              </button>
+            </div>
+
+            {/* Audio Guidance Announcement Toggle */}
+            <button
+              type="button"
+              onClick={() => setIsAudioAnnounce(!isAudioAnnounce)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                isAudioAnnounce
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                  : 'bg-stone-100 text-stone-500 border-stone-200'
+              }`}
+              aria-label={isAudioAnnounce ? 'Mute Breath Announcements' : 'Unmute Breath Announcements'}
+            >
+              {isAudioAnnounce ? (
+                <>
+                  <Volume2 className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+                  <span>Voice Guided</span>
+                </>
+              ) : (
+                <>
+                  <VolumeX className="w-3.5 h-3.5 text-stone-400" />
+                  <span>Silent Mode</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-5">
-          {/* Animated Breath Ring */}
-          <div
-            className={`w-24 h-24 rounded-full flex flex-col items-center justify-center border-2 border-emerald-400/60 transition-all duration-1000 ${
-              isBreathingActive ? 'animate-breath bg-gradient-to-tr from-emerald-100 via-teal-50 to-amber-50' : 'bg-stone-50'
-            }`}
-          >
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-900">
-              {isBreathingActive ? breathPhase : 'Ready'}
-            </span>
-            <span className="text-[10px] text-stone-500 font-mono">
-              {isBreathingActive ? '4 seconds' : 'Tap Start'}
-            </span>
+        {/* Breath Visualizer & Play Controls */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 bg-gradient-to-r from-emerald-50/70 via-teal-50/40 to-stone-50 p-6 rounded-2xl border border-emerald-200/80">
+          <div className="flex items-center gap-6">
+            {/* Animated Dynamic Breath Orb */}
+            <div
+              className={`relative w-28 h-28 rounded-full flex flex-col items-center justify-center border-2 transition-all duration-1000 ${
+                !isBreathingActive
+                  ? 'bg-white border-stone-300 text-stone-400 shadow-xs'
+                  : breathPhase === 'Inhale'
+                  ? 'bg-gradient-to-tr from-emerald-200 to-teal-100 border-emerald-500 text-emerald-950 scale-110 shadow-lg ring-4 ring-emerald-400/30'
+                  : breathPhase === 'Hold'
+                  ? 'bg-gradient-to-tr from-teal-200 to-cyan-100 border-teal-500 text-teal-950 scale-110 shadow-lg ring-4 ring-teal-400/30'
+                  : breathPhase === 'Exhale'
+                  ? 'bg-gradient-to-tr from-amber-100 to-emerald-100 border-amber-400 text-amber-950 scale-95 shadow-md'
+                  : 'bg-gradient-to-tr from-stone-100 to-stone-200 border-stone-400 text-stone-800 scale-90'
+              }`}
+            >
+              <span className="text-xs font-bold uppercase tracking-wider">
+                {isBreathingActive ? breathPhase : 'Prana'}
+              </span>
+              <span className="text-[11px] font-mono mt-0.5 font-semibold opacity-80">
+                {isBreathingActive ? '4 seconds' : 'Ready'}
+              </span>
+            </div>
+
+            {/* Phase Guidance Description */}
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold uppercase px-2 py-0.5 rounded-md bg-white border border-stone-200 text-stone-700">
+                  {isBreathingActive ? `Phase: ${breathPhase}` : '4-4-4-4 Cycle'}
+                </span>
+                {isBreathingActive && (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-teal-800 bg-teal-100/80 px-2 py-0.5 rounded-full animate-pulse">
+                    <Music className="w-3 h-3 text-teal-600" /> Mild 432 Hz BG Active
+                  </span>
+                )}
+              </div>
+              <h5 className="text-base sm:text-lg font-bold font-heading text-emerald-950 mt-1">
+                {!isBreathingActive
+                  ? 'Begin Conscious Box Breathing'
+                  : breathPhase === 'Inhale'
+                  ? 'Inhale deep prana through nostrils (4s)'
+                  : breathPhase === 'Hold'
+                  ? 'Retain breath softly at heart center (4s)'
+                  : breathPhase === 'Exhale'
+                  ? 'Exhale fully, releasing all tension (4s)'
+                  : 'Pause in serene zero-point stillness (4s)'}
+              </h5>
+              <p className="text-xs text-stone-500">
+                {isBreathingActive
+                  ? isAudioAnnounce
+                    ? `Announcing "${breathPhase}" with mild acoustic background`
+                    : 'Silent breath pacer active'
+                  : 'Click start to initiate voice announcements and mild background audio'}
+              </p>
+            </div>
           </div>
 
-          <button
-            onClick={() => setIsBreathingActive(!isBreathingActive)}
-            className={`px-4 py-2.5 rounded-xl text-xs font-semibold shadow-xs transition-all cursor-pointer ${
-              isBreathingActive
-                ? 'bg-rose-600 hover:bg-rose-700 text-white'
-                : 'bg-emerald-800 hover:bg-emerald-900 text-white'
-            }`}
-            aria-label={isBreathingActive ? 'Stop Breath Pacer' : 'Start Pranic Breath Pacer'}
-          >
-            {isBreathingActive ? 'Pause Breath' : 'Start 1-Min Breath'}
-          </button>
+          {/* Action Button */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsBreathingActive(!isBreathingActive)}
+              className={`px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer ${
+                isBreathingActive
+                  ? 'bg-rose-700 hover:bg-rose-800 text-white'
+                  : 'bg-emerald-800 hover:bg-emerald-900 text-white hover:scale-102'
+              }`}
+              aria-label={isBreathingActive ? 'Pause Breath Guidance' : 'Start Audio-Guided Breath'}
+            >
+              {isBreathingActive ? 'Pause Breath' : 'Start Audio-Guided Breath'}
+            </button>
+          </div>
         </div>
       </div>
 

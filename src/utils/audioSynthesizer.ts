@@ -13,6 +13,8 @@ class AudioSynthesizer {
   private ambientGain: GainNode | null = null;
   private ambientOscillators: OscillatorNode[] = [];
   private ambientBufferSource: AudioBufferSourceNode | null = null;
+  private pranayamaGain: GainNode | null = null;
+  private pranayamaOscillators: OscillatorNode[] = [];
 
   public initContext(): AudioContext {
     if (!this.ctx || this.ctx.state === 'closed') {
@@ -312,6 +314,122 @@ class AudioSynthesizer {
       }
       this.ambientGain = null;
     }, 450);
+  }
+
+  /**
+   * Play mild dawn background soundscape for pranayama breathwork (432Hz ambient drone)
+   */
+  public playPranayamaBackground(volume: number = 0.08): () => void {
+    this.stopPranayamaBackground();
+
+    const ctx = this.initContext();
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+    const now = ctx.currentTime;
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.setTargetAtTime(volume, now, 0.4);
+    gain.connect(ctx.destination);
+    this.pranayamaGain = gain;
+
+    // Filter to keep background gentle, mild, warm and non-intrusive
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(650, now);
+    filter.connect(gain);
+
+    // Warm 432 Hz grounding sine wave
+    const osc1 = ctx.createOscillator();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(432, now);
+    const osc1Gain = ctx.createGain();
+    osc1Gain.gain.setValueAtTime(0.3, now);
+    osc1.connect(osc1Gain);
+    osc1Gain.connect(filter);
+    osc1.start(now);
+
+    // Deep 108 Hz calming sub drone
+    const osc2 = ctx.createOscillator();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(108, now);
+    const osc2Gain = ctx.createGain();
+    osc2Gain.gain.setValueAtTime(0.25, now);
+    osc2.connect(osc2Gain);
+    osc2Gain.connect(filter);
+    osc2.start(now);
+
+    // Ethereal 648 Hz fifth overtone for cosmic serenity
+    const osc3 = ctx.createOscillator();
+    osc3.type = 'sine';
+    osc3.frequency.setValueAtTime(648, now);
+    const osc3Gain = ctx.createGain();
+    osc3Gain.gain.setValueAtTime(0.08, now);
+    osc3.connect(osc3Gain);
+    osc3Gain.connect(filter);
+    osc3.start(now);
+
+    this.pranayamaOscillators.push(osc1, osc2, osc3);
+
+    return () => this.stopPranayamaBackground();
+  }
+
+  public stopPranayamaBackground(): void {
+    if (this.pranayamaGain && this.ctx) {
+      const now = this.ctx.currentTime;
+      try {
+        this.pranayamaGain.gain.cancelScheduledValues(now);
+        this.pranayamaGain.gain.setTargetAtTime(0.00001, now, 0.08);
+      } catch {
+        // ignore
+      }
+    }
+
+    const oscs = [...this.pranayamaOscillators];
+    this.pranayamaOscillators = [];
+    setTimeout(() => {
+      oscs.forEach((osc) => {
+        try {
+          osc.stop();
+          osc.disconnect();
+        } catch {
+          // ignore
+        }
+      });
+      if (this.pranayamaGain) {
+        try {
+          this.pranayamaGain.disconnect();
+        } catch {
+          // ignore
+        }
+        this.pranayamaGain = null;
+      }
+    }, 200);
+  }
+
+  /**
+   * Soft dawn chime bowl for breath transitions
+   */
+  public playSoftChime(pitch: number = 528): void {
+    const ctx = this.initContext();
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+    const now = ctx.currentTime;
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(0.12, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+    gain.connect(ctx.destination);
+
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(pitch, now);
+    osc.connect(gain);
+    osc.start(now);
+    osc.stop(now + 1.25);
   }
 
   /**
