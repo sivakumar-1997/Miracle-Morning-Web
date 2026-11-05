@@ -332,7 +332,7 @@ export const EveningMagicView: React.FC<EveningMagicProps> = ({
           onClick={onSwitchToMorning}
           className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-800 hover:bg-emerald-900 text-white font-semibold text-xs sm:text-sm shadow-md transition-all cursor-pointer"
         >
-          <span>Return to Morning Miracles</span>
+          <span>Return to Miracle Mornings</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>

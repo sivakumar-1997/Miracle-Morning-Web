@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sun, Moon, BookOpen, Flame, Shield, Cloud, Waves } from 'lucide-react';
+import { Sun, Moon, BookOpen, Flame, Waves, Settings } from 'lucide-react';
 import { UserProfile } from '../types';
 import { audioSynth } from '../utils/audioSynthesizer';
 
@@ -47,7 +47,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-emerald-950 font-heading">
-                Morning Miracles
+                Miracle Mornings
               </h1>
               <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100/80 text-emerald-800 border border-emerald-300">
                 28-Day Magic
@@ -68,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({
                 ? 'bg-white text-emerald-950 shadow-xs font-semibold'
                 : 'text-stone-600 hover:text-emerald-950 hover:bg-stone-200/50'
             }`}
-            aria-label="Switch to Morning Miracle Flow"
+            aria-label="Switch to Miracle Mornings Flow"
           >
             <Sun className={`w-4 h-4 ${activeMode === 'morning' ? 'text-amber-500 fill-amber-400/30' : 'text-stone-400'}`} />
             <span>Morning Flow</span>
@@ -126,28 +126,14 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="hidden md:inline">Library</span>
           </button>
 
-          {/* Account / Supabase */}
+          {/* Settings & Configuration */}
           <button
             onClick={onOpenAuth}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-xs sm:text-sm font-medium border ${
-              isSupabaseConfigured
-                ? 'bg-teal-50 text-teal-800 border-teal-300 hover:bg-teal-100'
-                : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
-            }`}
-            title="Account & Supabase Settings"
-            aria-label="Account and Cloud Sync"
+            className="flex items-center justify-center p-2 rounded-lg bg-stone-100 hover:bg-stone-200/80 text-stone-700 hover:text-emerald-950 border border-stone-200 transition-all cursor-pointer"
+            title="Settings & Cloud Sync"
+            aria-label="Settings"
           >
-            {isSupabaseConfigured ? (
-              <>
-                <Cloud className="w-4 h-4 text-teal-600" />
-                <span className="hidden sm:inline">Synced</span>
-              </>
-            ) : (
-              <>
-                <Shield className="w-4 h-4 text-stone-500" />
-                <span className="hidden sm:inline">Guest</span>
-              </>
-            )}
+            <Settings className="w-4 h-4" />
           </button>
         </div>
       </div>

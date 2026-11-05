@@ -150,7 +150,7 @@ export default function App() {
       <footer className="mt-auto border-t border-emerald-900/10 bg-white/70 py-6 px-4 text-center text-xs text-stone-500">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="font-heading font-semibold text-emerald-950">Morning Miracles</span>
+            <span className="font-heading font-semibold text-emerald-950">Miracle Mornings</span>
             <span>•</span>
             <span>Vedic Dawn Wisdom, 7 Chakras, Ho&apos;oponopono &amp; 28-Day Magic</span>
           </div>

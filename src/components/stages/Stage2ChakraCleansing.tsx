@@ -128,7 +128,7 @@ export const Stage2ChakraCleansing: React.FC<Stage2Props> = ({ onComplete }) => 
           Seven Chakras Aura Cleansing
         </h2>
         <p className="text-stone-600 text-sm">
-          Immerse in pure Solfeggio acoustic harmonics. Click any chakra to hear its healing vibration individually,
+          Immerse in pure acoustic healing harmonics. Click any chakra to hear its healing vibration individually,
           or embark on the cumulative 5-minute ascending journey.
         </p>
       </div>
@@ -375,7 +375,7 @@ export const Stage2ChakraCleansing: React.FC<Stage2Props> = ({ onComplete }) => 
                 </h3>
                 <div className="text-xs font-semibold mt-0.5 text-stone-700 flex items-center gap-2">
                   <span className="px-2 py-0.5 rounded-full bg-white shadow-xs font-mono font-bold">
-                    {selectedChakra.frequency} Hz Solfeggio
+                    {selectedChakra.frequency} Hz
                   </span>
                   <span>Element: {selectedChakra.element}</span>
                 </div>

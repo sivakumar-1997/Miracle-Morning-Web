@@ -263,7 +263,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   {authMode === 'signin' ? (
                     <>
                       <LogIn className="w-4 h-4" />
-                      <span>{isSubmitting ? 'Signing in...' : 'Sign In to Morning Miracles'}</span>
+                      <span>{isSubmitting ? 'Signing in...' : 'Sign In to Miracle Mornings'}</span>
                     </>
                   ) : (
                     <>
@@ -353,7 +353,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   Vercel Deployment &amp; Database Migration
                 </h4>
                 <p className="text-xs text-stone-500">
-                  Follow these 3 easy steps to deploy Morning Miracles on Vercel with your Supabase database:
+                  Follow these 3 easy steps to deploy Miracle Mornings on Vercel with your Supabase database:
                 </p>
               </div>
 

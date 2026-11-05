@@ -53,7 +53,7 @@ export function getSupabase(): SupabaseClient | null {
 /**
  * SQL Schema migration ready to copy-paste into Supabase SQL Editor
  */
-export const SUPABASE_SCHEMA_SQL = `-- Morning Miracles Supabase Database Schema
+export const SUPABASE_SCHEMA_SQL = `-- Miracle Mornings Supabase Database Schema
 -- Run this script inside your Supabase project's SQL Editor
 
 -- 1. Create profiles table

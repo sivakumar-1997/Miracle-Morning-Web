@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Droplets, Sparkles, Volume2, ArrowRight, Award, CheckCircle2, Heart } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Droplets, Sparkles, Volume2, ArrowRight, Award, CheckCircle2, Heart, Play, Pause, RotateCcw } from 'lucide-react';
 import { audioSynth } from '../../utils/audioSynthesizer';
 
 interface Stage4Props {
@@ -36,9 +36,21 @@ const WATER_AFFIRMATIONS = [
 export const Stage4WaterAlchemy: React.FC<Stage4Props> = ({ onComplete }) => {
   const [sipsCount, setSipsCount] = useState<number>(0);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
   const [waterBlessed, setWaterBlessed] = useState<boolean>(false);
   const [voiceGender, setVoiceGender] = useState<'female' | 'male'>('female');
+
+  const isCancelledRef = useRef<boolean>(false);
+  const nextStepTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      isCancelledRef.current = true;
+      if (nextStepTimerRef.current) clearTimeout(nextStepTimerRef.current);
+      audioSynth.stopSpeech();
+    };
+  }, []);
 
   const handleSip = () => {
     if (sipsCount >= 7) return;
@@ -53,30 +65,58 @@ export const Stage4WaterAlchemy: React.FC<Stage4Props> = ({ onComplete }) => {
   };
 
   const handleStartOrRestartDictation = (genderToUse?: 'female' | 'male') => {
+    if (nextStepTimerRef.current) clearTimeout(nextStepTimerRef.current);
     audioSynth.stopSpeech();
+    isCancelledRef.current = false;
+    setIsPaused(false);
     setIsSpeaking(true);
     speakStep(0, genderToUse || voiceGender);
   };
 
-  const handleStopDictation = () => {
+  const handlePauseDictation = () => {
+    if (nextStepTimerRef.current) clearTimeout(nextStepTimerRef.current);
     audioSynth.stopSpeech();
+    isCancelledRef.current = true;
     setIsSpeaking(false);
+    setIsPaused(true);
+  };
+
+  const handleResumeDictation = () => {
+    if (nextStepTimerRef.current) clearTimeout(nextStepTimerRef.current);
+    audioSynth.stopSpeech();
+    isCancelledRef.current = false;
+    setIsPaused(false);
+    setIsSpeaking(true);
+    speakStep(activeStepIndex, voiceGender);
+  };
+
+  const handleStopDictation = () => {
+    if (nextStepTimerRef.current) clearTimeout(nextStepTimerRef.current);
+    audioSynth.stopSpeech();
+    isCancelledRef.current = true;
+    setIsSpeaking(false);
+    setIsPaused(false);
+    setActiveStepIndex(0);
   };
 
   const handleVoiceChange = (newGender: 'female' | 'male') => {
     setVoiceGender(newGender);
     if (isSpeaking) {
-      // Pause speech and immediately restart with the chosen voice
+      if (nextStepTimerRef.current) clearTimeout(nextStepTimerRef.current);
       audioSynth.stopSpeech();
       setTimeout(() => {
-        speakStep(activeStepIndex, newGender);
+        if (!isCancelledRef.current) {
+          speakStep(activeStepIndex, newGender);
+        }
       }, 150);
     }
   };
 
   const speakStep = (idx: number, activeGender?: 'female' | 'male') => {
+    if (isCancelledRef.current) return;
     if (idx >= WATER_AFFIRMATIONS.length) {
       setIsSpeaking(false);
+      setIsPaused(false);
       return;
     }
 
@@ -90,7 +130,12 @@ export const Stage4WaterAlchemy: React.FC<Stage4Props> = ({ onComplete }) => {
       rate: 0.88,
       gender: gender,
       onEnd: () => {
-        setTimeout(() => speakStep(idx + 1, gender), 800);
+        if (isCancelledRef.current) return;
+        nextStepTimerRef.current = setTimeout(() => {
+          if (!isCancelledRef.current) {
+            speakStep(idx + 1, gender);
+          }
+        }, 800);
       },
     });
   };
@@ -199,8 +244,65 @@ export const Stage4WaterAlchemy: React.FC<Stage4Props> = ({ onComplete }) => {
               </button>
             </div>
 
-            {!isSpeaking ? (
+            {isSpeaking && (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handlePauseDictation}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
+                  aria-label="Pause Dictation"
+                >
+                  <Pause className="w-3.5 h-3.5 fill-current" />
+                  <span>Pause</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleStartOrRestartDictation()}
+                  className="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold border border-stone-200 transition-all cursor-pointer"
+                  title="Restart Dictation from Step 1"
+                  aria-label="Restart Dictation from Beginning"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Restart</span>
+                </button>
+              </div>
+            )}
+
+            {isPaused && (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleResumeDictation}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
+                  aria-label="Resume Dictation"
+                >
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <span>Resume (Decree {activeStepIndex + 1})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleStartOrRestartDictation()}
+                  className="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold border border-stone-200 transition-all cursor-pointer"
+                  title="Restart Dictation from Step 1"
+                  aria-label="Restart Dictation from Beginning"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Restart</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleStopDictation}
+                  className="text-stone-500 hover:text-stone-800 text-xs px-1.5 py-1 underline cursor-pointer"
+                  aria-label="Stop Dictation"
+                >
+                  Stop
+                </button>
+              </div>
+            )}
+
+            {!isSpeaking && !isPaused && (
               <button
+                type="button"
                 onClick={() => handleStartOrRestartDictation()}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-semibold shadow-xs transition-all cursor-pointer"
                 aria-label="Dictate the 4 Water Manifestation Steps"
@@ -208,24 +310,6 @@ export const Stage4WaterAlchemy: React.FC<Stage4Props> = ({ onComplete }) => {
                 <Volume2 className="w-4 h-4 text-emerald-600" />
                 <span>Dictate All 4 Decrees</span>
               </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleStartOrRestartDictation()}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
-                  aria-label="Restart Dictation from Beginning"
-                >
-                  <Volume2 className="w-3.5 h-3.5 animate-pulse" />
-                  <span>Restart Dictation</span>
-                </button>
-                <button
-                  onClick={handleStopDictation}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
-                  aria-label="Pause Dictation"
-                >
-                  <span>Pause</span>
-                </button>
-              </div>
             )}
           </div>
         </div>
@@ -233,6 +317,7 @@ export const Stage4WaterAlchemy: React.FC<Stage4Props> = ({ onComplete }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {WATER_AFFIRMATIONS.map((item, idx) => {
             const isCurrent = isSpeaking && activeStepIndex === idx;
+            const isCardPaused = isPaused && activeStepIndex === idx;
 
             return (
               <div
@@ -240,6 +325,8 @@ export const Stage4WaterAlchemy: React.FC<Stage4Props> = ({ onComplete }) => {
                 className={`p-5 rounded-2xl border-2 transition-all ${
                   isCurrent
                     ? 'border-cyan-500 bg-cyan-50/70 shadow-md ring-2 ring-cyan-400/30'
+                    : isCardPaused
+                    ? 'border-amber-400 bg-amber-50/60 shadow-xs ring-1 ring-amber-300/40'
                     : 'border-stone-200 bg-stone-50/50 hover:border-emerald-300'
                 }`}
               >

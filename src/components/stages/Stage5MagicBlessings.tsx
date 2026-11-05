@@ -426,7 +426,7 @@ export const Stage5MagicBlessings: React.FC<Stage5Props> = ({ userProfile, onCom
           onClick={onComplete}
           className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-800 hover:bg-emerald-900 text-white font-semibold text-sm shadow-md transition-all cursor-pointer hover:shadow-lg group"
         >
-          <span>Complete Morning Miracles Ritual</span>
+          <span>Complete Miracle Mornings Ritual</span>
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </button>
       </div>

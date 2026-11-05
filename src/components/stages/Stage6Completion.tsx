@@ -41,7 +41,7 @@ export const Stage6Completion: React.FC<Stage6Props> = ({
         </div>
 
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold uppercase tracking-wider">
-          Stage 6 • Morning Miracle Complete
+          Stage 6 • Miracle Morning Complete
         </div>
 
         <h2 className="text-3xl sm:text-4xl font-bold font-heading text-emerald-950">
@@ -49,7 +49,7 @@ export const Stage6Completion: React.FC<Stage6Props> = ({
         </h2>
 
         <p className="text-stone-600 text-sm sm:text-base max-w-xl mx-auto font-sans leading-relaxed">
-          You have successfully aligned your biofield through ancient Brahma Muhurtha wisdom, Solfeggio sound therapy,
+          You have successfully aligned your biofield through ancient Brahma Muhurtha wisdom, sacred chakra sound therapy,
           sacred Ho&apos;oponopono prayer, water manifestation, and 10 magical blessings.
         </p>
       </div>
@@ -90,7 +90,7 @@ export const Stage6Completion: React.FC<Stage6Props> = ({
           </div>
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <span>7 Chakras Solfeggio Frequency Cleansed</span>
+            <span>7 Chakras Sound Frequency Cleansed</span>
           </div>
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />

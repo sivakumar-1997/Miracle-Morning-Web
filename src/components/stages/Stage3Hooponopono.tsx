@@ -35,7 +35,7 @@ const PHRASES = [
 
 export const Stage3Hooponopono: React.FC<Stage3Props> = ({ onComplete }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [playMode, setPlayMode] = useState<'words-only' | 'words-with-frequency'>('words-with-frequency');
+  const [playMode, setPlayMode] = useState<'words-only' | 'words-with-frequency'>('words-only');
   const [activePhraseIndex, setActivePhraseIndex] = useState<number>(0);
   const [currentRepetition, setCurrentRepetition] = useState<number>(1);
   const [targetRepetitions, setTargetRepetitions] = useState<number>(21);
@@ -185,24 +185,26 @@ export const Stage3Hooponopono: React.FC<Stage3Props> = ({ onComplete }) => {
             </div>
 
             {/* Mode A/B Switcher */}
-            <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-2xl border border-stone-200">
+            <div className="flex items-center gap-1 bg-emerald-50/80 p-1 rounded-2xl border border-emerald-200">
               <button
+                type="button"
                 onClick={() => {
                   if (isPlaying) stopPlayback();
                   setPlayMode('words-only');
                 }}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                   playMode === 'words-only'
-                    ? 'bg-white text-emerald-950 shadow-xs'
-                    : 'text-stone-600 hover:text-stone-900'
+                    ? 'bg-emerald-800 text-white shadow-xs'
+                    : 'text-stone-700 hover:text-emerald-900'
                 }`}
                 aria-label="Dictate Words Only"
               >
-                <Mic className="w-3.5 h-3.5 text-stone-600" />
+                <Mic className={`w-3.5 h-3.5 ${playMode === 'words-only' ? 'text-white' : 'text-stone-500'}`} />
                 <span>Words Only</span>
               </button>
 
               <button
+                type="button"
                 onClick={() => {
                   if (isPlaying) stopPlayback();
                   setPlayMode('words-with-frequency');
@@ -210,11 +212,11 @@ export const Stage3Hooponopono: React.FC<Stage3Props> = ({ onComplete }) => {
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                   playMode === 'words-with-frequency'
                     ? 'bg-emerald-800 text-white shadow-xs'
-                    : 'text-stone-600 hover:text-stone-900'
+                    : 'text-stone-700 hover:text-emerald-900'
                 }`}
                 aria-label="Dictate Words Along With 528Hz Frequency"
               >
-                <Music className="w-3.5 h-3.5 text-amber-300" />
+                <Music className={`w-3.5 h-3.5 ${playMode === 'words-with-frequency' ? 'text-amber-300' : 'text-stone-500'}`} />
                 <span>Words + 528 Hz</span>
               </button>
             </div>

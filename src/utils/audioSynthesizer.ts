@@ -1,6 +1,6 @@
 /**
- * Web Audio API and Speech Synthesis engine for Morning Miracles.
- * Generates Solfeggio sacred frequencies, singing bowl chimes,
+ * Web Audio API and Speech Synthesis engine for Miracle Mornings.
+ * Generates sacred frequencies, singing bowl chimes,
  * binaural sleep frequencies, and speech narration.
  */
 

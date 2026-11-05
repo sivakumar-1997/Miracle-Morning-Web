@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Morning Miracles</title>
-    <meta name="description" content="Sacred daily spiritual rituals: Brahma Muhurtha wisdom, 7 Chakras Solfeggio sound therapy, Ho'oponopono sacred prayer, Masaru Emoto water alchemy, 28-day Magic gratitude, and Evening Magic subconscious reflection." />
-    <meta property="og:title" content="Morning Miracles" />
-    <meta property="og:description" content="Sacred daily spiritual rituals: Brahma Muhurtha wisdom, 7 Chakras Solfeggio sound therapy, Ho'oponopono sacred prayer, Masaru Emoto water alchemy, 28-day Magic gratitude, and Evening Magic subconscious reflection." />
+    <title>Miracle Mornings</title>
+    <meta name="description" content="Sacred daily spiritual rituals: Brahma Muhurtha wisdom, 7 Chakras healing sound therapy, Ho'oponopono sacred prayer, Masaru Emoto water alchemy, 28-day Magic gratitude, and Evening Magic subconscious reflection." />
+    <meta property="og:title" content="Miracle Mornings" />
+    <meta property="og:description" content="Sacred daily spiritual rituals: Brahma Muhurtha wisdom, 7 Chakras healing sound therapy, Ho'oponopono sacred prayer, Masaru Emoto water alchemy, 28-day Magic gratitude, and Evening Magic subconscious reflection." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,6 +16,49 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <!-- Botpress Webchat Integration (Miracle Mornings emerald theme) -->
+    <script 
+      src="https://cdn.botpress.cloud/webchat/v5.0/inject.js"
+      onload="
+        window.botpress.init({
+          botId: '9384038c-99fc-4da5-9902-f42d7b6b91f5',
+          clientId: '919e59bb-104a-4c19-b601-b25e7ef8c76e',
+          configuration: {
+            version: 'v2',
+            botName: 'Miracle Mornings',
+            botDescription: 'Sacred Spiritual Guide for Miracle Mornings daily practice, grounded in dawn rituals, chakras, prayers, and gratitude.',
+            color: '#047857',
+            themeMode: 'light',
+            radius: 4,
+            variant: 'solid',
+            headerVariant: 'glass',
+            fontFamily: 'inter',
+            feedbackEnabled: true,
+            allowFileUpload: true,
+            soundEnabled: true,
+            conversationHistory: true,
+            homePageEnabled: true,
+            welcomeHeading: 'How can I help?',
+            welcomeSubtitle: 'Ask about the dawn routine, guided breathing, chakras, or affirmations.',
+            conversationStartersEnabled: true,
+            conversationStarters: [
+              {
+                id: 'bootstrap-1',
+                text: 'How do I start guided box breathing?',
+                enabled: true
+              },
+              {
+                id: 'bootstrap-2',
+                text: 'What happens after the dawn affirmation?',
+                enabled: true
+              }
+            ],
+            conversationStartersDisplayStyle: 'cards',
+            citationsEnabled: true
+          }
+        });
+      "
+    ></script>
   </body>
 </html>
 
